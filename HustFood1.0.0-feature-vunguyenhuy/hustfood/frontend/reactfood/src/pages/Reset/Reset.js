@@ -3,13 +3,15 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import ProfileSidebar from '../../components/ProfileSidebar/ProfileSidebar';
 import './Reset.css';
+import { updateUserPassword } from '../../services/userService';
 
 const Reset = () => {
     const [formData, setFormData] = useState({
-        currentPassword: '',
+        password: '',
         newPassword: '',
         confirmPassword: ''
     });
+    const [error, setError] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -18,16 +20,36 @@ const Reset = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle password reset logic here
-        console.log('Form submitted:', formData);
+        setError(null);
+        if (formData.newPassword !== formData.confirmPassword) {
+            setError({response:{
+                data: { message: 'Mật khẩu mới không khớp. Vui lòng thử lại.' }
+            }});
+            return;
+        }
+        try {
+            let token = localStorage.getItem('token');
+            const { password, newPassword } = formData;
+            const response = await updateUserPassword(token, password, newPassword);
+            if (response.status === 200) {
+                alert('Đặt lại mật khẩu thành công');
+                setFormData({
+                    password: '',
+                    newPassword: '',
+                    confirmPassword: ''
+                });
+            }
+        } catch (error) {
+            setError(error);
+        }
     };
 
     return (
         <>
             <Header />
-            <div className="profile-page">
+            <div className="reset-page">
                 <ProfileSidebar />
                 <div className="reset-content">
                     <div className="reset-container">
@@ -36,8 +58,8 @@ const Reset = () => {
                             <div className="form-group">
                                 <input
                                     type="password"
-                                    name="currentPassword"
-                                    value={formData.currentPassword}
+                                    name="password"
+                                    value={formData.password}
                                     onChange={handleChange}
                                     required
                                     placeholder='Mật khẩu hiện tại'
@@ -63,6 +85,11 @@ const Reset = () => {
                                     placeholder='Xác nhận mật khẩu mới'
                                 />
                             </div>
+                            {error && (
+                                <div className="error-message">
+                                    <p>{error.response.data.message}</p>
+                                </div>
+                            )}
                             <button type="submit" className="reset-button">
                                 Đặt lại mật khẩu
                             </button>

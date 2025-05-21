@@ -1,78 +1,39 @@
-const products = [
-    {
-      name: "Cơm gà",
-      price: "45.000đ",
-      type: "Món gà rán",
-      time: "Đăng 6 ngày trước",
-      even: false,
-    },
-    {
-      name: "Cơm gà rán",
-      price: "45.000đ",
-      type: "Món gà rán",
-      time: "Đăng 6 ngày trước",
-      even: true,
-    },
-    {
-      name: "Cơm phi lê gà",
-      price: "45.000đ",
-      type: "Món gà rán",
-      time: "Đăng 6 ngày trước",
-      even: false,
-    },
-    {
-      name: "Gà viên",
-      price: "30.000đ",
-      type: "Món gà rán",
-      time: "Đăng 6 ngày trước",
-      even: true,
-    },
-  ];
-  
-  export default function ProductTable() {
-    return (
-      <div className="jobs">
-        <h2>
-          Sản Phẩm{" "}
-          <small>
-            Xem tất cả sản phẩm <span className="las la-arrow-right"></span>
-          </small>
-        </h2>
-        <div className="table-responsive">
-          <table width="100%">
-            <tbody>
-              {products.map((product, idx) => (
-                <tr key={idx}>
-                  <td>
-                    <div>
-                      <span
-                        className={`indicator ${product.even ? "even" : ""}`}
-                      ></span>
-                    </div>
-                  </td>
-                  <td>
-                    <div>{product.name}</div>
-                  </td>
-                  <td>
-                    <div>{product.price}</div>
-                  </td>
-                  <td>
-                    <div>{product.type}</div>
-                  </td>
-                  <td>
-                    <div>{product.time}</div>
-                  </td>
-                  <td>
-                    <div>
-                      <button>Xem thêm</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+export default function ProductTable() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/dashboard/get_products_revenue")
+      .then((res) => setProducts(res.data))
+      .catch((err) => console.error("Lỗi khi tải doanh thu sản phẩm:", err));
+  }, []);
+
+  return (
+    <div className="jobs">
+      <h2>
+        Doanh thu sản phẩm
+      </h2>
+      <div className="table-wrapper">
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>Tên sản phẩm</th>
+              <th>Doanh thu</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product, idx) => (
+              <tr key={idx}>
+                <td>{product.name}</td>
+                <td>{parseFloat(product.total_price*1000).toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    );
-  }
-  
+    </div>
+  );
+}

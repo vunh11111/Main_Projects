@@ -1,4 +1,3 @@
-// components/OrderFormModal/OrderFormModal.js
 import React from 'react';
 import './OrderFormModel.css';
 
@@ -10,30 +9,40 @@ const OrderFormModal = ({ show, onClose, order }) => {
       <div className="modal-content">
         <h2>{order ? 'Chỉnh sửa đơn hàng' : 'Thêm đơn hàng mới'}</h2>
         <form className="order-form">
-          <label>Khách hàng:</label>
-          <input type="text" name="customer" placeholder="Nhập tên khách hàng" />
+          {order && (
+            <>
+              <label>Mã đơn hàng:</label>
+              <input
+                type="text"
+                name="order_id"
+                value={order.order_id}
+                disabled
+              />
+            </>
+          )}
 
-          <label>Sản phẩm:</label>
-          <input type="text" name="product" placeholder="Tên sản phẩm" />
-
-          <label>Tổng tiền:</label>
-          <input type="number" name="total" placeholder="VNĐ" />
+          <label>Mã khách hàng:</label>
+          <input
+            type="number"
+            name="customer_id"
+            placeholder="Nhập mã khách hàng"
+            defaultValue={order ? order.customer_id : ''}
+          />
 
           <label>Trạng thái:</label>
-          <select name="status">
-            <option>Đang xử lý</option>
-            <option>Đã hoàn tất</option>
-            <option>Đã hủy</option>
-          </select>
-
-          <label>Thanh toán:</label>
-          <select name="payment">
-            <option>Chưa thanh toán</option>
-            <option>Đã thanh toán</option>
+          <select name="status" defaultValue={order ? order.status : 'PENDING'}>
+            <option value="PENDING">PENDING</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="SHIPPED">SHIPPED</option>
+            <option value="CANCELLED">CANCELLED</option>
           </select>
 
           <label>Ghi chú:</label>
-          <textarea name="note" placeholder="Ghi chú thêm (nếu có)" />
+          <textarea
+            name="note"
+            placeholder="Ghi chú thêm (nếu có)"
+            defaultValue={order ? order.note : ''}
+          />
 
           <div className="modal-actions">
             <button type="submit" className="btn-save">Lưu</button>

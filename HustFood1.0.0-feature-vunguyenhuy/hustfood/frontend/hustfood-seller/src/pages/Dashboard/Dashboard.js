@@ -6,6 +6,7 @@ import Cards from '../../components/Cards/Cards';
 import ActionsCard from '../../components/ActionsCard/ActionCard'; 
 import ProductTable from '../../components/ProductTable/ProductTable'; 
 import '../../assets/dashboard.css';
+// import { exportData } from '../../services/dashboardService';
 export default function DashboardPage() {
   return (
     <>
@@ -21,12 +22,12 @@ export default function DashboardPage() {
               </small>
             </div>
             <div className="header-actions">
-              <button>
+              {/* <button onClick={exportData}>
                 <span className="las la-file-export"></span> Export
-              </button>
-              <button>
+              </button> */}
+              {/* <button>
                 <span className="las la-tools"></span> Settings
-              </button>
+              </button> */}
             </div>
           </div>
           <Cards />

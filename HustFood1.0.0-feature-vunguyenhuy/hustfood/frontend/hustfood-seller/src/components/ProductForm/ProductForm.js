@@ -1,75 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import './ProductForm.css';
 
-const ProductForm = ({ onSubmit, editingProduct, onCancel }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    extraCosts: '',
-    type: 'Món gà rán',
-    description: ''
-  });
-
-  useEffect(() => {
-    if (editingProduct) {
-      setFormData(editingProduct);
-    }
-  }, [editingProduct]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-    setFormData({ name: '', price: '', extraCosts: '', type: 'Món gà rán', description: '' });
-  };
-
+const ProductForm = ({ product, onChange, categories }) => {
   return (
-    <form className="product_form" onSubmit={handleSubmit}>
-      <label>
-        Tên sản phẩm:
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-      </label>
-
-      <label>
-        Giá bán:
-        <input type="number" name="price" value={formData.price} onChange={handleChange} required />
-      </label>
-
-      <label>
-        Các chi phí khác:
-        <input type="number" name="extraCosts" value={formData.extraCosts} onChange={handleChange} />
-      </label>
-
-      <label>
-        Loại:
-        <select name="type" value={formData.type} onChange={handleChange} required>
-          <option value="Món gà rán">Món gà rán</option>
-          <option value="Burger và cơm">Burger và cơm</option>
-          <option value="Thức ăn nhẹ">Thức ăn nhẹ</option>
-          <option value="Tráng miệng">Tráng miệng</option>
-          <option value="Đồ uống">Đồ uống</option>
-        </select>
-      </label>
-
-      <label>
-        Mô tả:
-        <textarea
-          name="description"
-          rows="5"
-          maxLength="500"
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </label>
-
-      <div className="product_actions">
-        <button type="submit">{editingProduct ? 'Cập nhật' : 'Thêm'}</button>
-        {editingProduct && <button type="button" onClick={onCancel}>Hủy</button>}
+    <div className="pf-product-form">
+      <div className="pf-form-group">
+        <label>Tên sản phẩm:</label>
+        <input type="text" name="name" value={product.name} onChange={onChange} className="pf-form-input" />
       </div>
-    </form>
+
+      <div className="pf-form-group">
+        <label>Mô tả:</label>
+        <textarea name="description" value={product.description} onChange={onChange} className="pf-form-input" />
+      </div>
+
+      <div className="pf-form-group">
+        <label>Giá:</label>
+        <input type="number" name="price" value={product.price} onChange={onChange} className="pf-form-input" />
+      </div>
+
+      <div className="pf-form-group">
+        <label>Kho:</label>
+        <input type="number" name="stock" value={product.stock} onChange={onChange} className="pf-form-input" />
+      </div>
+
+      <div className="pf-form-group">
+        <label>Danh mục:</label>
+        <select name="category_id" value={product.category_id} onChange={onChange} className="pf-form-input">
+          <option value="">-- Chọn danh mục --</option>
+          {Array.isArray(categories) &&
+            categories.map((cat) => (
+              <option key={cat.category_id} value={cat.category_id}>
+                {cat.cate_name}
+              </option>
+            ))}
+        </select>
+      </div>
+
+      <div className="pf-form-group">
+        <label>Combo:</label>
+        <select name="category_id_combo" value={product.category_id_combo} onChange={onChange} className="pf-form-input">
+          <option value="">-- Chọn combo --</option>
+          <option value={3}>Combo 1 người</option>
+          <option value={4}>Combo nhóm</option>
+        </select>
+      </div>
+
+      <div className="pf-form-group">
+        <label>Ưu đãi:</label>
+        <select
+          name="category_id_uu_dai"
+          value={product.category_id_uu_dai || '0'}
+          onChange={onChange}
+          className="pf-form-input"
+        >
+          <option value="0">Không</option>
+          <option value="1">Có</option>
+        </select>
+      </div>
+
+      {/* <div className="pf-form-group">
+        <label>Ảnh:</label>
+        <input type="text" name="url_img" value={product.url_img} onChange={onChange} className="pf-form-input" />
+      </div> */}
+    </div>
   );
 };
 

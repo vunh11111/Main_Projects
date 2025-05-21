@@ -4,31 +4,56 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import './Product.css';
 import {getProductById} from '../../services/productService';
-import productsData from '../../data/productsData';
+import { addCartItem } from '../../services/cartService';
 
 const Product = () => {
     const [quantity, setQuantity] = useState(1);
     const [product, setProduct] = useState(null);
+    const [error, setError] = useState(null);
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q');
 
-    useEffect(() => {
-        const productIdParam = searchParams.get('product_id');
-        /*const handleProductId = async () => {
-            if (productId) {
-                const productFound = await getProductById(productId);
-                setProduct(productFound);
-            }
-        }
-        handleProductId();*/
 
-        if (productIdParam) {
-            let productIndex = parseInt(productIdParam, 10) - 1; // Convert to array index
-            if (!isNaN(productIndex) && productIndex >= 0 && productIndex < productsData.length) {
-                setProduct(productsData[productIndex]);
+    useEffect(() => {
+        setError(null);
+        const productIdParam = searchParams.get('product_id');
+        const handleProductId = async () => {
+            if (productIdParam) {
+                try {
+                    const productFound = await getProductById(productIdParam);
+                
+                    if (productFound.status === 200) {
+                        console.log(productFound.data);
+                        setProduct(productFound.data);
+                    }
+                } catch (error) {
+                    setError(error);
+                }
             }
         }
+        handleProductId();
     }, []);
+
+    const handleAddToCart = async () => {
+        setError(null);
+        const token = localStorage.getItem('token');
+        if (token) {
+            const data = {
+                product_id: product.productId,
+                quantity: quantity
+            };
+            try {
+                const response = await addCartItem(token, data);
+                if (response.status === 200) {
+                    alert('Thêm sản phẩm vào giỏ hàng thành công');
+                }
+            } catch (error) {
+                setError(error);
+            }
+        } else {
+            console.error('User not authenticated');
+        }
+    }
 
     if (!product) {
         return (
@@ -51,11 +76,12 @@ const Product = () => {
                         ←
                     </Link>
                     <div className="product-left">
-                        <img src={product.url_img} alt={product.name} className="product-image" />
+                        <img src={product.urlImg} alt={product.name} className="product-image" />
                     </div>
                     <div className="product-right">
                         <div className="product-header">
                             <h1>{product.name}</h1>
+                            <span className="product-price">{product.price}đ</span>
                         </div>
                         <div className="product-description">
                             {product.description}
@@ -66,7 +92,12 @@ const Product = () => {
                                 <span>{quantity}</span>
                                 <button onClick={() => setQuantity(quantity + 1)}>+</button>
                             </div>
-                            <button className="add-to-cart">Thêm</button>
+                            {error && (
+                                <div className="error-message">
+                                    <p>{error.response.data.message}</p>
+                                </div>
+                            )}
+                            <button className="add-to-cart" onClick={handleAddToCart}>Thêm</button>
                         </div>
                     </div>
                 </div>

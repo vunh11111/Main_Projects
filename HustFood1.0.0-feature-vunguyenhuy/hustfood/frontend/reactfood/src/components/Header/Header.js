@@ -20,7 +20,6 @@ import {
   faFacebook,
   faInstagram
 } from '@fortawesome/free-brands-svg-icons';
-import productsData from '../../data/productsData';
 
 
 const Header = () => {
@@ -29,53 +28,70 @@ const Header = () => {
   const [error, setError] = useState(null);
   const [mode, setMode] = useState('');
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('token') ? true : false;
+  });
   const [cartItems, setCartItems] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const userMenuRef = useRef(null);
+  const [needUpdate, setNeedUpdate] = useState(false);
   const cartRef = useRef(null);
 
   useEffect(() => {
     const fetchCartItems = async () => {
+      setError(null);
       try {
         const token = localStorage.getItem('token');
+        console.log(token);
         const items = await getAllCartItems(token);
-        setCartItems(items);
+        if (items.status === 200) {
+          setCartItems(items.data);
+        }
       } catch (error) {
-        setError(error.message);
+          const errorData = error.response?.data;
+            setError({
+                response: {
+                    data: {
+                        message: errorData?.message || 'Có lỗi xảy ra, vui lòng thử lại'
+                    }
+                }
+            });
       }
     };
-    /*fetchCartItems();*/
-    setCartItems(productsData);
-  }, []);
+    const token = localStorage.getItem('token');
+    token ? fetchCartItems() : setCartItems([]);
+  }, [isAuthenticated, isCartOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (cartRef.current && !cartRef.current.contains(event.target)) {
         setIsCartOpen(false);
-        handleUpdateAllCartItems();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+
+    const updateCart = async () => {
+        console.log('Updating cart...');
+        await handleUpdateAllCartItems();
+        setNeedUpdate(false);
+    };
+    updateCart();
+  }, [needUpdate]);
+
   // chuyển đổi giữa người mua và người bán
   const handleSwitchToSeller = () => {
-    window.location.href = 'http://localhost:3001'; 
+    window.location.href = 'http://localhost:3001';
   };
 
   // đi đến các trang mạng xã hội
   const handleSocialClick = (platform) => {
     const socialMediaLinks = getSocialMediaLinks();
     const url = socialMediaLinks[platform]; 
-  
-    if (url) {
       window.open(url, '_blank');
-    } else {
-      setError(error.message);
-    }
   };
 
   // xử lý khi nhấp vào trợ giúp
@@ -97,11 +113,7 @@ const Header = () => {
 
   // xử lý khi nhấp vào tài khoản người dùng
   const handleUserMenuClick = async () => {
-    try {
         navigate('/profile');
-    } catch (error) {
-      setError(error.message);
-    }
   };
 
   // xử lý tìm kiếm
@@ -127,35 +139,47 @@ const Header = () => {
 
   // xử lý khi xoá sản phẩm trong giỏ hàng
   const handleCartItemRemove = async (itemId) => {
+    setError(null);
     try {
       const token = localStorage.getItem('token');
       await removeCartItem(token, itemId);
       setCartItems((prev) => prev.filter((item) => item.id !== itemId));
     } catch (error) {
-      setError(error.message);
+      setError(error);
     }
   };
 
   // Add new handler for quantity updates
   const handleUpdateQuantity = (itemId, change) => {
     setCartItems(prev => prev.map(item => {
-      if (item.product_id === itemId) {
+      if (item.productId === itemId) {
         const newQuantity = item.quantity + change;
         return newQuantity > 0 ? { ...item, quantity: newQuantity } : item;
       }
       return item;
     }));
+    setNeedUpdate(true);
   };
 
   // update all cart items
   const handleUpdateAllCartItems = async () => {
+    setError(null);
     try {
-      const data = cartItems.map((item) => ({product_id: item.product_id, quantity: item.quantity}));
+      if (!cartItems.length) return;
+      const data = cartItems.map((item) => ({product_id: item.productId, quantity: item.quantity}));
       const token = localStorage.getItem('token');
       await updateAllCartItem(token, data);
-      setCartItems((prev) => prev.map((item) => item));
+
     } catch (error) {
-      setError(error.message);
+        const errorData = error.response?.data;
+        setError({
+            response: {
+                data: {
+                    message: errorData?.message || 'Có lỗi xảy ra, vui lòng thử lại'
+                }
+            }
+        });
+        throw error;
     }
   };
 
@@ -208,7 +232,7 @@ const Header = () => {
                   </li>
                 </div>
               ) : (
-                <div className="user__check" ref={userMenuRef}>
+                <div className="user__check">
                   <li
                     className="header__navbar-item header__navbar-user"
                     onClick={() => handleUserMenuClick()}
@@ -263,7 +287,9 @@ const Header = () => {
               <div className="header__cart-wrap">
                 <div
                   className="header__cart-icon"
-                  onClick={() => setIsCartOpen(!isCartOpen)}
+                  onClick={() => {
+                    setIsCartOpen(!isCartOpen);
+                  }}
                 >
                   <FontAwesomeIcon icon={faCartShopping} />
                 </div>
@@ -277,9 +303,9 @@ const Header = () => {
                     <h4 className="header__cart-heading">Sản phẩm đã thêm</h4>
                     <ul className="header__cart-list-item">
                       {cartItems.map((item) => (
-                        <li key={item.product_id} className="header__cart-item">
+                        <li className="header__cart-item">
                           <img
-                            src={item.url_img}
+                            src={item.urlImg}
                             alt=""
                             className="header__cart-img"
                           />
@@ -289,7 +315,7 @@ const Header = () => {
                               <div className="header__cart-item-quantity">
                                 <button 
                                   className="header__cart-item-quantity-btn"
-                                  onClick={() => handleUpdateQuantity(item.product_id, -1)}
+                                  onClick={() => handleUpdateQuantity(item.productId, -1)}
                                   disabled={item.quantity <= 1}
                                 >
                                   -
@@ -297,7 +323,10 @@ const Header = () => {
                                 <span className="header__cart-item-qnt">{item.quantity}</span>
                                 <button 
                                   className="header__cart-item-quantity-btn"
-                                  onClick={() => handleUpdateQuantity(item.product_id, 1)}
+                                  onClick={() => {
+                                    console.log('Button clicked'); // Thêm log để kiểm tra
+                                    handleUpdateQuantity(item.productId, 1);
+                                  }}
                                 >
                                   +
                                 </button>
@@ -307,7 +336,7 @@ const Header = () => {
                             <div className="header__cart-item-body">
                               <button
                                 className="header__cart-item-remove"
-                                onClick={() => handleCartItemRemove(item.id)}
+                                onClick={() => handleCartItemRemove(item.productId)}
                               >
                                 Xóa
                               </button>
@@ -325,6 +354,11 @@ const Header = () => {
             </div>
           </div>
         </div>
+        {error && (
+          <div className="error-message">
+            <p>{error.response.data.message}</p>
+          </div>
+        )}
       </header>
       <AuthModal 
         isOpen={showAuthModal} 

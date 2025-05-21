@@ -109,7 +109,7 @@
   border-radius: 3px;
 }
 
-.jobs h2 small {
+/* .jobs h2 small {
   color: var(--color-button1);
   font-weight: 600;
   display: inline-block;
@@ -120,7 +120,7 @@
   border-collapse: collapse;
   margin-top: 1rem;
   overflow-x: auto;
-}
+} */
 span.indicator {
   background: #c9f7f5;
   height: 15px;
@@ -133,7 +133,7 @@ span.indicator.even {
   width: 15px;
   border-radius: 50%;
 }
-.jobs table td div {
+/* .jobs table td div {
   background: var(--color-text);
   margin-bottom: 0.8rem;
   height: 60px;
@@ -143,7 +143,7 @@ span.indicator.even {
   font-size: 0.85rem;
   color: #444;
   font-weight: 500;
-}
+} */
 table button {
   background: var(--color-button1);
   color: midnightblue;
@@ -152,7 +152,8 @@ table button {
   border-radius: 3px;
 }
 .table-responsive {
-  overflow: auto;
+  overflow-x: auto;
+  max-width: 100%;
 }
 @media only screen and (max-width: 1124px) {
   .navbar {
@@ -193,4 +194,59 @@ table button {
   .header-actions:first-child {
     margin-left: 0;
   }
+}
+.jobs {
+  margin-top: 2rem;
+}
+
+.jobs h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.jobs table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: white;
+}
+
+.jobs th, .jobs td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.jobs th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.jobs tr:hover {
+  background-color: #f9fafb;
+}
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+}
+
+.table-wrapper table {
+  min-width: 400px; /* đảm bảo có đủ không gian cho 2 cột */
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.table-wrapper th, .table-wrapper td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-wrapper th {
+  background-color: #f3f4f6;
+  font-weight: 600;
 }

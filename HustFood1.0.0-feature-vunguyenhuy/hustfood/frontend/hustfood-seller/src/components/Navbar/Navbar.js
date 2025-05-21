@@ -7,20 +7,22 @@ const Navbar = ({ active }) => {
     <div className="navbar">
       <div className="navbar-brand">
         <div className="brand-flex">
-          <button className="las la-home"></button>
+          <button className="las la-home"><a href="http://localhost:3000" className="buyer-button">
+          <span className="las la-exchange-alt"></span>
+        </a></button>
           <div className="brand-icons">
-            <span className="las la-bell"></span>
-            <span className="las la-user-circle"></span>
+            {/* <span className="las la-bell"></span>
+            <span className="las la-user-circle"></span> */}
           </div>
         </div>
       </div>
 
       {/* Nút chuyển về Kênh người mua */}
-      <div className="buyer-switch">
+      {/* <div className="buyer-switch">
         <a href="http://localhost:3000" className="buyer-button">
           <span className="las la-exchange-alt"></span> Về kênh người mua
         </a>
-      </div>
+      </div> */}
 
       <div className="navbar-main">
         <div className="navbar-user">

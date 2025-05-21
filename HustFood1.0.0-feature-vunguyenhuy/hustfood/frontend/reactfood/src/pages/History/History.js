@@ -1,64 +1,82 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import ProfileSidebar from '../../components/ProfileSidebar/ProfileSidebar';
 import './History.css';
-
-const mockOrders = [
-    {
-        date: '15/11/2023',
-        orderNumber: 'DH001',
-        items: [
-            { name: 'Gà rán', quantity: 2, price: '75.000đ' },
-            { name: 'Hamburger bò', quantity: 1, price: '45.000đ' },
-            { name: 'Pepsi', quantity: 2, price: '15.000đ' }
-        ],
-        total: '225.000đ'
-    },
-    {
-        date: '10/11/2023',
-        orderNumber: 'DH002',
-        items: [
-            { name: 'Cơm gà', quantity: 1, price: '55.000đ' },
-            { name: 'Khoai tây chiên', quantity: 2, price: '35.000đ' }
-        ],
-        total: '125.000đ'
-    }
-];
+import { getAllOrders } from '../../services/orderSevice';
 
 const History = () => {
+    const [orders, setOrders] = useState([]);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        setError(null);
+        const fetchOrders = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await getAllOrders(token);
+                    setOrders(response.data);
+            } catch (error) {
+                const errorData = error.response?.data;
+                setError({
+                    response: {
+                        data: {
+                            message: errorData?.message || 'Có lỗi xảy ra, vui lòng thử lại'
+                        }
+                    }
+                });
+            }
+        };
+        fetchOrders();
+    }, []);
+    
+    if (error) {
+        return (
+            <div className="error-message">
+                <p>{error.response.data.message}</p>
+            </div>
+        );
+    }
+
     return (
-        <>
+        <div className="app-container">
             <Header />
-            <div className="profile-page">
+            <div className="history-page">
                 <ProfileSidebar />
                 <div className="history-content">
-                    <h1>Đơn hàng đã đặt</h1>
-                    {mockOrders.map((order, index) => (
-                        <div className="order-card" key={index}>
-                            <div className="order-header">
-                                <h2>Đơn hàng ngày {order.date}</h2>
-                                <span className="order-number">#{order.orderNumber}</span>
-                            </div>
-                            <div className="order-items">
-                                {order.items.map((item, itemIndex) => (
-                                    <div className="order-item" key={itemIndex}>
-                                        <span className="item-name">{item.name}</span>
-                                        <span className="item-quantity">x{item.quantity}</span>
-                                        <span className="item-price">{item.price}</span>
+                    <div className="history-container">
+                        <div className="orders-list">
+                            {orders.map((order) => (
+                                <div className="order-card" key={order.orderId}>
+                                    <div className="order-header">
+                                        <h2>ID : 00{order.orderId}</h2>
                                     </div>
-                                ))}
-                            </div>
-                            <div className="order-total">
-                                <span>Tổng cộng:</span>
-                                <span className="total-amount">{order.total}</span>
-                            </div>
+                                    <div className="order-items">
+                                        <div className="item-header">
+                                            <span className="col name">Tên sản phẩm</span>
+                                            <span className="col quantity">Số lượng</span>
+                                            <span className="col price">Thành tiền</span>
+                                        </div>
+                                        {order.products.map((product, index) => (
+                                            <div className="item-details" key={index}>
+                                                <span className="col name">{product.name}</span>
+                                                <span className="col quantity">{product.quantity}</span>
+                                                <span className="col price">{product.price.toLocaleString('vi-VN')}đ</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="order-total">
+                                        <span>Tổng cộng:</span>
+                                        <span className="total-amount">{order.totalPrice.toLocaleString('vi-VN')}đ</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
                 </div>
             </div>
             <Footer />
-        </>
+        </div>
     );
 };
 

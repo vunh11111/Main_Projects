@@ -1,9 +1,16 @@
 import axios from 'axios';
 
-export const logoutUser = async () => {
+export const logoutUser = async (token) => {
     try {
-      const response = await axios.post(`https://auth/logout`);
-      return response.status;
+      const response = await axios.post(`http://localhost:8080/api/auth/logout`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response;
     } catch (error) {
       throw error;
     }
@@ -11,20 +18,20 @@ export const logoutUser = async () => {
 
 export const loginUser = async (email, password) => {
     try {
-      const response = await axios.post(`https://auth/login`, { email, password });
-      const token = response.data.token;
-      localStorage.setItem('token', token);
-      return token;
+      const response = await axios.post(`http://localhost:8080/api/auth/login`, { email, password });
+      localStorage.setItem('token', response.data.token);
+      return response;
     } catch (error) {
       throw error;
     }
   };
 
-export const registerUser = async (full_name, phone, email, password) => {
+export const registerUser = async (fullName, phone, email, password) => {
     try {
-      const response = await axios.post(`https://auth/register`, { full_name, phone, email, password });
-      return response.status;
+      const response = await axios.post(`http://localhost:8080/api/auth/signup`, { fullName, phone, email, password });
+      return response;
     } catch (error) {
+      console.error('Error during registration:', error);
       throw error;
     }
   };
